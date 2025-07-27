@@ -1,0 +1,6 @@
+@EmailSnederAPI_HostAddress = http://localhost:5208
+
+GET {{EmailSnederAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
