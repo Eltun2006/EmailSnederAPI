@@ -2,9 +2,6 @@
 using System.Net.Mail;
 using System.Text;
 using System.IO;
-using MailKit.Net.Smtp;
-using MimeKit;
-using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 public class EmailSender
 {
@@ -17,23 +14,38 @@ public class EmailSender
 
     public async Task SendEmailWithAttachmentAsync(byte[] fileBytes, string fileName)
     {
-        var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("PDF Göndəriş Sistemi", "pmoaz123@gmail.com"));
-        message.To.Add(MailboxAddress.Parse("pmoaz123@gmail.com"));
-        message.Subject = "Yeni PDF faylı göndərildi";
+        var fromEmail = "pmoaz123@gmail.com";
+        var fromPassword = "mqocluwzxvyshrya";
+        var toEmail = "pmoaz123@gmail.com";
 
-        var builder = new BodyBuilder
+        var fromAddress = new MailAddress(fromEmail, "PDF Göndəriş Sistemi");
+        var toAddress = new MailAddress(toEmail);
+
+        try
         {
-            TextBody = "Zəhmət olmasa əlavə edilmiş faylı yoxlayın."
-        };
+            using var smtp = new SmtpClient
+            {
+                Host = "smtp.gmail.com",
+                Port = 587,
+                EnableSsl = true,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            };
 
-        builder.Attachments.Add(fileName, fileBytes);
-        message.Body = builder.ToMessageBody();
+            using var message = new MailMessage(fromAddress, toAddress)
+            {
+                Subject = "Yeni PDF faylı göndərildi",
+                Body = "Zəhmət olmasa əlavə edilmiş faylı yoxlayın.",
+                BodyEncoding = Encoding.UTF8,
+                IsBodyHtml = false
+            };
 
-        using var client = new SmtpClient();
-        await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-        await client.AuthenticateAsync("pmoaz123@gmail.com", "mqocluwzxvyshrya");
-        await client.SendAsync(message);
-        await client.DisconnectAsync(true);
+            message.Attachments.Add(new Attachment(new MemoryStream(fileBytes), fileName));
+            await smtp.SendMailAsync(message);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Mail xətası: {ex.Message}");
+            throw;
+        }
     }
 }
