@@ -15,7 +15,7 @@ public class EmailSender
     public async Task SendEmailWithAttachmentAsync(byte[] fileBytes, string fileName)
     {
         var fromEmail = "pmoaz123@gmail.com";
-        var fromPassword = "umoxojtjturwmdkv";
+        var fromPassword = "mqocluwzxvyshrya";
         var toEmail = "pmoaz123@gmail.com";
 
         var fromAddress = new MailAddress(fromEmail, "PDF Göndəriş Sistemi");
